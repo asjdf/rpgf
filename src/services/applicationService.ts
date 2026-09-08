@@ -48,7 +48,8 @@ import { UnauthorizedError } from "../errors/auth.ts";
 import { stringify } from "std/csv";
 import { createLog } from "./auditLogService.ts";
 import { AuditLogAction, AuditLogActorType } from "../types/auditLog.ts";
-import { KycProvider, KycStatus } from "../types/kyc.ts";
+import { KycProvider } from "../types/kyc.ts";
+import { formatKycStatusForCsv } from "../utils/kycCsvLabels.ts";
 import { cachingService } from "./cachingService.ts";
 import { getProviderForChain } from "$app/ethereum/providerRegistry.ts";
 import { createOrGetUser } from "./userService.ts";
@@ -1451,22 +1452,6 @@ export async function getApplications(
   await cachingService.set(cacheKey, result);
 
   return result;
-}
-
-
-const KYC_STATUS_CSV_LABELS: Record<KycStatus, string> = {
-  [KycStatus.Created]: "Created",
-  [KycStatus.UnderReview]: "Under Review",
-  [KycStatus.NeedsAdditionalInformation]: "Needs Additional Information",
-  [KycStatus.Active]: "Verified",
-  [KycStatus.Rejected]: "Rejected",
-  [KycStatus.Deactivated]: "Deactivated",
-};
-
-/** Map internal KYC status enums to human-friendly CSV labels (issue #42). */
-function formatKycStatusForCsv(status: KycStatus | undefined | null): string {
-  if (!status) return "";
-  return KYC_STATUS_CSV_LABELS[status] ?? status;
 }
 
 export async function getApplicationsCsv(
